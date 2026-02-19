@@ -5,7 +5,7 @@ const TABLE_NAME = "posts";
 export async function fetchPosts() {
   const { data, error } = await supabase
     .from(TABLE_NAME)
-    .select("id, author, title, content, created_at")
+    .select("id, user_id, author, title, content, created_at")
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -17,6 +17,14 @@ export async function fetchPosts() {
 
 export async function createPost(post) {
   const { error } = await supabase.from(TABLE_NAME).insert(post);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
+export async function updatePostById(id, patch) {
+  const { error } = await supabase.from(TABLE_NAME).update(patch).eq("id", id);
 
   if (error) {
     throw new Error(error.message);
