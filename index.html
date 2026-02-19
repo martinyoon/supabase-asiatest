@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>자유게시판</title>
+    <style>
+      :root {
+        --bg: #090f1d;
+        --panel: #121a2b;
+        --panel-2: #0f1726;
+        --line: #2a3550;
+        --text: #e7ecf8;
+        --muted: #9cb0d0;
+        --primary: #38bdf8;
+        --danger: #f87171;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Pretendard", "Noto Sans KR", sans-serif;
+        background: radial-gradient(circle at 0% 0%, #1f2a44 0%, var(--bg) 50%, #050914 100%);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      .wrap {
+        width: min(980px, 100%);
+        margin: 0 auto;
+        padding: 28px 16px 40px;
+      }
+
+      .board {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.9rem;
+      }
+
+      .subtitle {
+        margin: 8px 0 18px;
+        color: var(--muted);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .form-grid .full {
+        grid-column: 1 / -1;
+      }
+
+      input,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 14px;
+        background: var(--panel-2);
+        color: var(--text);
+      }
+
+      textarea {
+        min-height: 130px;
+        resize: vertical;
+      }
+
+      .actions {
+        margin-top: 10px;
+        display: flex;
+        gap: 8px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      #submitBtn,
+      #refreshBtn {
+        background: var(--primary);
+        color: #062133;
+      }
+
+      .deleteBtn {
+        background: rgba(248, 113, 113, 0.16);
+        color: #fecaca;
+        border: 1px solid rgba(248, 113, 113, 0.4);
+      }
+
+      .meta {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 14px;
+        min-height: 20px;
+      }
+
+      .posts {
+        margin-top: 20px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .post {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+        background: var(--panel);
+      }
+
+      .post-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .post-title {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .post-info {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .post-content {
+        margin-top: 10px;
+        white-space: pre-wrap;
+        line-height: 1.5;
+      }
+
+      .empty {
+        border: 1px dashed var(--line);
+        border-radius: 12px;
+        padding: 18px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      @media (max-width: 720px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <main class="board">
+        <h1>자유게시판</h1>
+        <p class="subtitle">글을 작성하고, 저장된 게시글을 확인할 수 있습니다.</p>
+
+        <form id="postForm" class="form-grid">
+          <input id="authorInput" type="text" placeholder="작성자" maxlength="40" required />
+          <input id="titleInput" type="text" placeholder="제목" maxlength="120" required />
+          <textarea id="contentInput" class="full" placeholder="내용" maxlength="2000" required></textarea>
+          <div class="actions full">
+            <button id="submitBtn" type="submit">글 등록</button>
+            <button id="refreshBtn" type="button">목록 새로고침</button>
+          </div>
+        </form>
+
+        <div id="status" class="meta"></div>
+
+        <section id="posts" class="posts"></section>
+      </main>
+    </div>
+
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
