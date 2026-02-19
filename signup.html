@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원가입</title>
+    <style>
+      :root { --bg:#090f1d; --panel:#121a2b; --line:#2a3550; --text:#e7ecf8; --muted:#9cb0d0; --primary:#38bdf8; --danger:#f87171; }
+      * { box-sizing: border-box; }
+      body { margin:0; font-family:"Pretendard","Noto Sans KR",sans-serif; background:radial-gradient(circle at 0% 0%, #1f2a44 0%, var(--bg) 50%, #050914 100%); color:var(--text); min-height:100vh; display:grid; place-items:center; padding:16px; }
+      .card { width:min(460px,100%); border:1px solid var(--line); background:#121a2b; border-radius:16px; padding:18px; }
+      h1 { margin:0 0 8px; font-size:1.5rem; }
+      p { margin:0 0 14px; color:var(--muted); }
+      form { display:grid; gap:10px; }
+      input { width:100%; border:1px solid var(--line); border-radius:10px; padding:11px 12px; font-size:14px; background:#0f1726; color:var(--text); }
+      button { border:0; border-radius:10px; padding:10px 14px; font-weight:700; cursor:pointer; background:var(--primary); color:#062133; }
+      .links { margin-top:12px; color:var(--muted); font-size:14px; }
+      a { color:#7dd3fc; text-decoration:none; }
+      #status { margin-top:10px; min-height:20px; color:var(--muted); font-size:14px; }
+      .err { color: var(--danger) !important; }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>회원가입</h1>
+      <p>가입 후 이메일 인증을 완료하세요.</p>
+      <form id="signUpForm">
+        <input id="emailInput" type="email" placeholder="이메일" autocomplete="email" required />
+        <input id="passwordInput" type="password" placeholder="비밀번호" autocomplete="new-password" required />
+        <button id="signUpBtn" type="submit">회원가입</button>
+      </form>
+      <div id="status"></div>
+      <div class="links">
+        이미 계정이 있나요? <a href="./login.html">로그인</a>
+      </div>
+    </main>
+    <script type="module" src="./js/signup.js"></script>
+  </body>
+</html>

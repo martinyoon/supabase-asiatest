@@ -1,4 +1,4 @@
-import { getSession, onAuthStateChange, signInWithEmail, signOut, signUpWithEmail } from "./api/authApi.js";
+import { getSession, onAuthStateChange, signOut } from "./api/authApi.js";
 import { createPost, fetchPosts, removePostById, updatePostById } from "./api/postsApi.js";
 import { renderAuthStatus, renderPosts, setStatus, toggleEditorAccess } from "./ui/postsView.js";
 
@@ -7,23 +7,22 @@ const titleInput = document.getElementById("titleInput");
 const contentInput = document.getElementById("contentInput");
 const submitBtn = document.getElementById("submitBtn");
 const refreshBtn = document.getElementById("refreshBtn");
+const signOutBtn = document.getElementById("signOutBtn");
 const status = document.getElementById("status");
 const postsEl = document.getElementById("posts");
 const searchInput = document.getElementById("searchInput");
 const sortSelect = document.getElementById("sortSelect");
 const clearSearchBtn = document.getElementById("clearSearchBtn");
-
-const emailInput = document.getElementById("emailInput");
-const passwordInput = document.getElementById("passwordInput");
-const signUpBtn = document.getElementById("signUpBtn");
-const signInBtn = document.getElementById("signInBtn");
-const signOutBtn = document.getElementById("signOutBtn");
 const authState = document.getElementById("authState");
 
 let currentSession = null;
 let postsState = [];
 let editingPostId = null;
 let editingDraft = { title: "", content: "" };
+
+function redirectToLogin() {
+  window.location.href = "./login.html";
+}
 
 function getPostFormValue() {
   return {
@@ -32,22 +31,9 @@ function getPostFormValue() {
   };
 }
 
-function getAuthFormValue() {
-  return {
-    email: emailInput.value.trim(),
-    password: passwordInput.value.trim()
-  };
-}
-
 function validatePostInput(post) {
   if (!post.title || !post.content) {
     throw new Error("제목, 내용을 모두 입력해주세요.");
-  }
-}
-
-function validateAuthInput(auth) {
-  if (!auth.email || !auth.password) {
-    throw new Error("이메일/비밀번호를 모두 입력해주세요.");
   }
 }
 
@@ -98,15 +84,15 @@ function renderPostsWithState() {
 
 function applySessionState(session) {
   currentSession = session;
-  renderAuthStatus(authState, session);
-  toggleEditorAccess({ form, submitBtn, session });
-  signOutBtn.disabled = !session;
-  signInBtn.disabled = Boolean(session);
-  signUpBtn.disabled = Boolean(session);
 
   if (!session) {
-    clearEditingState();
+    redirectToLogin();
+    return;
   }
+
+  renderAuthStatus(authState, session);
+  toggleEditorAccess({ form, submitBtn, session });
+  signOutBtn.disabled = false;
 }
 
 async function loadPosts() {
@@ -191,11 +177,6 @@ postsEl.addEventListener("click", async (e) => {
     return;
   }
 
-  if (!currentSession) {
-    setStatus(status, "로그인 후 사용 가능합니다.", "err");
-    return;
-  }
-
   if (target.classList.contains("deleteBtn")) {
     const shouldDelete = window.confirm("정말 이 게시글을 삭제하시겠습니까?");
     if (!shouldDelete) {
@@ -269,68 +250,28 @@ postsEl.addEventListener("click", async (e) => {
   }
 });
 
-signUpBtn.addEventListener("click", async () => {
-  const auth = getAuthFormValue();
-
-  try {
-    validateAuthInput(auth);
-  } catch (error) {
-    setStatus(status, error.message, "err");
-    return;
-  }
-
-  signUpBtn.disabled = true;
-  setStatus(status, "회원가입 중...");
-
-  try {
-    await signUpWithEmail(auth.email, auth.password);
-    setStatus(status, "회원가입 요청 완료. 이메일 인증 후 로그인하세요.");
-  } catch (error) {
-    setStatus(status, `회원가입 실패: ${error.message}`, "err");
-  } finally {
-    signUpBtn.disabled = false;
-  }
-});
-
-signInBtn.addEventListener("click", async () => {
-  const auth = getAuthFormValue();
-
-  try {
-    validateAuthInput(auth);
-  } catch (error) {
-    setStatus(status, error.message, "err");
-    return;
-  }
-
-  signInBtn.disabled = true;
-  setStatus(status, "로그인 중...");
-
-  try {
-    await signInWithEmail(auth.email, auth.password);
-    setStatus(status, "로그인 성공");
-  } catch (error) {
-    setStatus(status, `로그인 실패: ${error.message}`, "err");
-  } finally {
-    signInBtn.disabled = false;
-  }
-});
-
 signOutBtn.addEventListener("click", async () => {
   signOutBtn.disabled = true;
   setStatus(status, "로그아웃 중...");
 
   try {
     await signOut();
-    setStatus(status, "로그아웃 완료");
+    redirectToLogin();
   } catch (error) {
     setStatus(status, `로그아웃 실패: ${error.message}`, "err");
     signOutBtn.disabled = false;
   }
 });
 
-const { data: authListener } = onAuthStateChange(async (session) => {
-  applySessionState(session);
-  await loadPosts();
+const { data: authListener } = onAuthStateChange((session) => {
+  if (!session) {
+    redirectToLogin();
+    return;
+  }
+
+  currentSession = session;
+  renderAuthStatus(authState, session);
+  renderPostsWithState();
 });
 
 window.addEventListener("beforeunload", () => {
@@ -340,9 +281,15 @@ window.addEventListener("beforeunload", () => {
 async function bootstrap() {
   try {
     const session = await getSession();
+    if (!session) {
+      redirectToLogin();
+      return;
+    }
+
     applySessionState(session);
   } catch (error) {
     setStatus(status, `세션 확인 실패: ${error.message}`, "err");
+    return;
   }
 
   await loadPosts();
